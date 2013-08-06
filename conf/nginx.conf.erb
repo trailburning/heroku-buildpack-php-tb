@@ -76,6 +76,10 @@ http {
         break;
       }
 
+      if ($request_uri ~ "/phpinfo.php$"){
+        break;
+      }
+
       rewrite         ^(.+)$ /index.php last;
     }
 
