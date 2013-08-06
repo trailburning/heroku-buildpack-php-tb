@@ -15,17 +15,20 @@ mkdir -p build && pushd build
 echo "+ Fetching libmcrypt libraries..."
 # install mcrypt for portability.
 mkdir -p /app/local
+echo "https://s3.amazonaws.com/${S3_BUCKET}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz"
 curl -L "https://s3.amazonaws.com/${S3_BUCKET}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz" -o - | tar xz -C /app/local
 
 echo "+ Fetching libmemcached libraries..."
 mkdir -p /app/local
 curl -L "https://s3.amazonaws.com/${S3_BUCKET}/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz" -o - | tar xz -C /app/local
-
 echo "+ Fetching PHP sources..."
 #fetch php, extract
 curl -L http://us.php.net/get/php-$PHP_VERSION.tar.bz2/from/www.php.net/mirror -o - | tar xj
 
+mkdir -p /app/vendor/php
+
 pushd php-$PHP_VERSION
+
 
 echo "+ Configuring PHP..."
 # new configure command
@@ -108,24 +111,6 @@ sed -i -e '18 s/no, no/yes, yes/' ./config.m4
 phpize
 ./configure --with-libmemcached-dir=/app/local --with-php-config=/app/vendor/php/bin/php-config
 make && make install
-popd
-
-echo "+ Installing phpredis..."
-# install phpredis
-git clone git://github.com/nicolasff/phpredis.git
-pushd phpredis
-git checkout ${PHPREDIS_VERSION}
-
-phpize
-./configure
-make && make install
-# add "extension=redis.so" to php.ini
-popd
-
-echo "+ Install newrelic..."
-curl -L "http://download.newrelic.com/php_agent/archive/${NEWRELIC_VERSION}/newrelic-php5-${NEWRELIC_VERSION}-linux.tar.gz" | tar xz
-pushd newrelic-php5-${NEWRELIC_VERSION}-linux
-cp -f agent/x64/newrelic-`phpize --version | grep "Zend Module Api No" | tr -d ' ' | cut -f 2 -d ':'`.so `php-config --extension-dir`/newrelic.so
 popd
 
 echo "+ Packaging PHP..."

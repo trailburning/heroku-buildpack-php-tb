@@ -10,7 +10,6 @@ export APC_VERSION="3.1.10"
 export PHPREDIS_VERSION="2.2.2"
 export LIBMEMCACHED_VERSION="1.0.7"
 export MEMCACHED_VERSION="2.0.1"
-export NEWRELIC_VERSION="2.9.5.78"
 ## END EDIT
 
 set -e
@@ -158,12 +157,6 @@ phpize
 ./configure
 make && make install
 # add "extension=redis.so" to php.ini
-popd
-
-echo "+ Install newrelic..."
-curl -L "http://download.newrelic.com/php_agent/archive/${NEWRELIC_VERSION}/newrelic-php5-${NEWRELIC_VERSION}-linux.tar.gz" | tar xz
-pushd newrelic-php5-${NEWRELIC_VERSION}-linux
-cp -f agent/x64/newrelic-`phpize --version | grep "Zend Module Api No" | tr -d ' ' | cut -f 2 -d ':'`.so `php-config --extension-dir`/newrelic.so
 popd
 
 echo "+ Packaging PHP..."
