@@ -21,6 +21,8 @@ http {
   # don't use server listen port in redirects.
   port_in_redirect off;
 
+  client_max_body_size 16m;
+
   # set $https only when SSL is actually used.
   map $http_x_forwarded_proto $my_https {
     default off;
