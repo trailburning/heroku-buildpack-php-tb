@@ -21,7 +21,8 @@ curl -L http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o - | tar xz
 # download and extract pcre into contrib directory
 pushd nginx-$NGINX_VERSION/contrib
 curl -L ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.21.tar.gz -o - | tar zx
-curl -L https://github.com/downloads/masterzen/nginx-upload-progress-module/nginx_uploadprogress_module-0.9.0.tar.gz -o - | tar zx
+curl -L https://github.com/masterzen/nginx-upload-progress-module/tarball/v${NGINX_UPLOAD_PROGRESS_MODULE_VERSION}  -o - | tar zx
+
 mv masterzen-nginx-upload-progress-module* nginx_uploadprogress_module
 popd
 
