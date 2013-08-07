@@ -15,12 +15,12 @@ mkdir -p build && pushd build
 echo "+ Fetching libmcrypt libraries..."
 # install mcrypt for portability.
 mkdir -p /app/local
-echo "https://s3.amazonaws.com/${S3_BUCKET}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz"
-curl -L "https://s3.amazonaws.com/${S3_BUCKET}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz" -o - | tar xz -C /app/local
+echo "https://${S3_ENDPOINT}/${S3_BUCKET}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz"
+curl -L "https://${S3_ENDPOINT}/${S3_BUCKET}/libmcrypt-${LIBMCRYPT_VERSION}.tar.gz" -o - | tar xz -C /app/local
 
 echo "+ Fetching libmemcached libraries..."
 mkdir -p /app/local
-curl -L "https://s3.amazonaws.com/${S3_BUCKET}/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz" -o - | tar xz -C /app/local
+curl -L "https://${S3_ENDPOINT}/${S3_BUCKET}/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz" -o - | tar xz -C /app/local
 echo "+ Fetching PHP sources..."
 #fetch php, extract
 curl -L http://us.php.net/get/php-$PHP_VERSION.tar.bz2/from/www.php.net/mirror -o - | tar xj
@@ -39,6 +39,7 @@ echo "+ Configuring PHP..."
 --with-config-file-scan-dir=/app/vendor/php/etc.d \
 --disable-debug \
 --disable-rpath \
+--enable-exif \
 --enable-fpm \
 --enable-gd-native-ttf \
 --enable-inline-optimization \
@@ -56,11 +57,8 @@ echo "+ Configuring PHP..."
 --with-mcrypt=/app/local \
 --with-iconv \
 --with-mhash \
---with-mysql \
---with-mysqli \
 --with-openssl \
 --with-pcre-regex \
---with-pdo-mysql \
 --with-pgsql \
 --with-pdo-pgsql \
 --with-png-dir \

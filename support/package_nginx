@@ -21,10 +21,12 @@ curl -L http://nginx.org/download/nginx-$NGINX_VERSION.tar.gz -o - | tar xz
 # download and extract pcre into contrib directory
 pushd nginx-$NGINX_VERSION/contrib
 curl -L ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-8.21.tar.gz -o - | tar zx
+curl -L https://github.com/downloads/masterzen/nginx-upload-progress-module/nginx_uploadprogress_module-0.9.0.tar.gz -o - | tar zx
+mv masterzen-nginx-upload-progress-module* nginx_uploadprogress_module
 popd
 
 # build and package nginx for heroku
-vulcan build -v -s nginx-$NGINX_VERSION -o $tempdir/nginx-$NGINX_VERSION-heroku.tar.gz -p /app/vendor/nginx -c './configure --prefix=/app/vendor/nginx --with-pcre=contrib/pcre-8.21 --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module && make install' 
+vulcan build -v -s nginx-$NGINX_VERSION -o $tempdir/nginx-$NGINX_VERSION-heroku.tar.gz -p /app/vendor/nginx -c './configure --prefix=/app/vendor/nginx --with-pcre=contrib/pcre-8.21 --with-http_ssl_module --with-http_gzip_static_module --with-http_stub_status_module --add-module=contrib/nginx_uploadprogress_module && make install'
 
 popd
 
