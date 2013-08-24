@@ -176,9 +176,9 @@ then
 		download_url ${COMPOSER_URL}
 	fi
 
-	# do the deed!
-	echo "Running: php composer.phar install" | indent
-	LD_LIBRARY_PATH="${BUILD_DIR}/local/lib" ${BUILD_DIR}/vendor/php/bin/php composer.phar install -n | indent
+	# do the deed! Installing without development packages
+	echo "Running: php composer.phar install --no-dev --prefer-dist" | indent
+	LD_LIBRARY_PATH="${BUILD_DIR}/local/lib" ${BUILD_DIR}/vendor/php/bin/php composer.phar install --no-dev --prefer-dist -n | indent
 
 	export GIT_DIR=${GIT_DIR_ORIG}
 fi
