@@ -80,7 +80,7 @@ http {
         break;
       }
 
-      rewrite         ^(/api/.+)$ /api/index.php last;
+      rewrite         ^/api/(.+)$ /api/index.php last;
     }
 
     include /app/conf/nginx.d/*.conf;
