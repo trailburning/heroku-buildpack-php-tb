@@ -82,14 +82,13 @@ http {
 		
 		
 		location ~ ^/(app|app_dev)\.php(/|$) {
-			fastcgi_split_path_info ^(.+\.php)(/.*)$;
-			include fastcgi_params;
-			fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
-			fastcgi_index app.php;
-			send_timeout 1800;
-			fastcgi_read_timeout 1800;
-			#fastcgi_pass unix:/var/run/php-fpm/php-fpm.sock;
-			fastcgi_pass 127.0.0.1:9000;
+			fastcgi_split_path_info		^(.+\.php)(/.*)$;
+			include						fastcgi_params;
+			fastcgi_param 				SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_index				app.php;
+			send_timeout				1800;
+			fastcgi_read_timeout		1800;
+			fastcgi_pass				php_fpm;
 		}
  
 		# Statics
@@ -106,7 +105,6 @@ http {
 		}
 
 		location /api/ {
-		
 			root		/app/api/;
 		
 			# wordpress fancy rewrites
@@ -120,18 +118,17 @@ http {
 			if ($request_uri ~ "/phpinfo.php$"){
 				break;
 			}
-
 		}
 
 		include /app/conf/nginx.d/*.conf;
 
 		location ~ .*\.php$ {
-			try_files $uri =404;
-			limit_conn phplimit 3; # limit to 5 concurrent users to PHP per IP.
+			try_files 				$uri =404;
+			limit_conn phplimit		3; # limit to 5 concurrent users to PHP per IP.
 			include					fastcgi_params;
-			fastcgi_param		HTTPS $my_https if_not_empty;
-			fastcgi_pass		php_fpm;
-			fastcgi_param		SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_param			HTTPS $my_https if_not_empty;
+			fastcgi_pass			php_fpm;
+			fastcgi_param			SCRIPT_FILENAME $document_root$fastcgi_script_name;
 		}
 	}
 }
