@@ -68,7 +68,7 @@ http {
 
 		location / {
 		
-			root		/app/web/;
+			root		/app/web;
 		
 			rewrite ^/app\.php/?(.*)$ /$1 permanent;
 
@@ -105,7 +105,7 @@ http {
 		}
 
 		location /api/ {
-			root		/app/;
+			root		/app/api;
 		
 			# wordpress fancy rewrites
 			if (-f $request_filename) {
@@ -119,7 +119,7 @@ http {
 				break;
 			}
 			
-			rewrite			^/api/(.+)$ index.php last;
+			rewrite			^/api/(.+)$ /index.php last;
 		}
 
 		include /app/conf/nginx.d/*.conf;
