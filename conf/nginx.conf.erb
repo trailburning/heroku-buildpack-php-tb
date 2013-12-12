@@ -33,6 +33,7 @@ http {
 		server unix:/tmp/php-fpm.socket;
 	}
 	
+	root		/app/web;
 	index	index.php index.html;
 
 	server {
@@ -66,9 +67,61 @@ http {
 			access_log			off;
 		}
 
+		# Trailburning Symfony Frontend
+		
+		location / {
+		
+			rewrite ^/app\.php/?(.*)$ /$1 permanent;
+
+			try_files $uri @rewriteapp;
+
+		}
+		
+		location @rewriteapp {
+			rewrite ^(.*)$ /app.php/$1 last;
+		}
+		
+		
+		location ~ ^/(app|app_dev)\.php(/|$) {
+			fastcgi_split_path_info		^(.+\.php)(/.*)$;
+			include						fastcgi_params;
+			fastcgi_param 				SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_index				app.php;
+			send_timeout				1800;
+			fastcgi_read_timeout		1800;
+			fastcgi_pass				php_fpm;
+		}
+ 
+		# Statics
+		location /(bundles|media) {
+			access_log off;
+			expires 30d;
+
+			# Font files
+			#if ($filename ~* ^.*?\.(eot)|(ttf)|(woff)$){
+			#       add_header Access-Control-Allow-Origin *;
+			#}
+
+			try_files $uri @rewriteapp;
+		}
+		
+		# Trailburning API
 		
 		location /api/ {
 			root		/app;
+			
+			# wordpress fancy rewrites
+			if (-f $request_filename) {
+				break;
+			}
+			
+			if (-d $request_filename) {
+				break;
+			}
+
+			if ($request_uri ~ "/phpinfo.php$"){
+				break;
+			}
 			
 			rewrite         ^/api/(.+)$ /api/index.php last;
 			
