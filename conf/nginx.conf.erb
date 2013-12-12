@@ -108,9 +108,9 @@ http {
 			root		/app/api;
 		
 			# wordpress fancy rewrites
-			if (-f $request_filename) {
-				break;
-			}
+			#if (-f $request_filename) {
+			#	break;
+			#}
 			if (-d $request_filename) {
 				break;
 			}
@@ -119,7 +119,7 @@ http {
 				break;
 			}
 			
-			rewrite			^/api/(.+)$ /index.php last;
+			#rewrite			^/api/(.+)$ /index.php last;
 		}
 
 		include /app/conf/nginx.d/*.conf;
