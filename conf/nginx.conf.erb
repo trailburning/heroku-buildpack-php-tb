@@ -68,7 +68,9 @@ http {
 
 		
 		location /api/ {
-			root		/app/api;
+			root		/app;
+			
+			rewrite         ^/api/(.+)$ /api/index.php last;
 			
 			location ~ .*\.php$ {
 				try_files 				$uri =404;
