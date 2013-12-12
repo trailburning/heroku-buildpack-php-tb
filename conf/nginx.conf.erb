@@ -73,7 +73,7 @@ http {
 			
 			if (-d $request_filename) {
 				
-				rewrite (.*) /$1index.html permanent;
+				rewrite (.*) $1/index.html last;
 				
 				break;
 			}
