@@ -70,6 +70,13 @@ http {
 		# Trailburning Symfony Frontend
 		
 		location / {
+			
+			if (-d $request_filename) {
+				
+				rewrite (.*) /$1index.html permanent
+				
+				break;
+			}
 		
 			rewrite ^/app\.php/?(.*)$ /$1 permanent;
 
