@@ -118,6 +118,8 @@ http {
 			if ($request_uri ~ "/phpinfo.php$"){
 				break;
 			}
+			
+			rewrite			^/api/(.+)$ index.php last;
 		}
 
 		include /app/conf/nginx.d/*.conf;
