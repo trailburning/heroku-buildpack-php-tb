@@ -33,7 +33,7 @@ http {
     server unix:/tmp/php-fpm.socket;
   }
 
-  root              /app/api/;
+  root              /app/web/;
   index             index.php index.html index.htm;
 
   server {
@@ -80,7 +80,7 @@ http {
         break;
       }
 
-      rewrite         ^/api/(.+)$ /api/index.php last;
+      rewrite         ^/api/(.+)$ ../api/index.php last;
     }
 
     include /app/conf/nginx.d/*.conf;
