@@ -1,97 +1,149 @@
 # setting worker_processes to CPU core count
-worker_processes      1;
+worker_processes			1;
 daemon off;
 
 events {
-  worker_connections  1024;
+	worker_connections	1024;
 }
 
 http {
-  include             mime.types;
-  default_type        application/octet-stream;
-  sendfile            on;
-  server_tokens       off;
-  keepalive_timeout   65;
-  gzip                on;
-  access_log          off;
-  error_log           logs/error.log;
-  proxy_max_temp_file_size	0;
-  #fastcgi_max_temp_file_size	0;
-  limit_conn_zone $binary_remote_addr zone=phplimit:10m; # define a limit bucket for PHP-FPM
-  # don't use server listen port in redirects.
-  port_in_redirect off;
+	include							mime.types;
+	default_type				application/octet-stream;
+	sendfile						on;
+	server_tokens				off;
+	keepalive_timeout		65;
+	gzip								on;
+	access_log					off;
+	error_log						logs/error.log;
+	proxy_max_temp_file_size	0;
+	#fastcgi_max_temp_file_size 0;
+	limit_conn_zone $binary_remote_addr zone=phplimit:10m; # define a limit bucket for PHP-FPM
+	# don't use server listen port in redirects.
+	port_in_redirect off;
 
-  client_max_body_size 16m;
+	client_max_body_size 16m;
 
-  # set $https only when SSL is actually used.
-  map $http_x_forwarded_proto $my_https {
-    default off;
-    https on;
-  }
+	# set $https only when SSL is actually used.
+	map $http_x_forwarded_proto $my_https {
+		default off;
+		https on;
+	}
 
-  upstream php_fpm {
-    server unix:/tmp/php-fpm.socket;
-  }
+	upstream php_fpm {
+		server unix:/tmp/php-fpm.socket;
+	}
+	
+	root		/app/web;
+	index	index.php index.html;
 
-  root              /app/;
-  index             index.php index.html index.htm;
+	server {
+		listen						<%= ENV['PORT'] %>;
+		server_name				_;
 
-  server {
-    listen            <%= ENV['PORT'] %>;
-    server_name       _;
+		# Some basic cache-control for static files to be sent to the browser
+		location ~* \.(?:ico|css|js|gif|jpeg|jpg|png)$ {
+			expires					max;
+			add_header			Pragma public;
+			add_header			Cache-Control "public, must-revalidate, proxy-revalidate";
+		}
 
-    # Some basic cache-control for static files to be sent to the browser
-    location ~* \.(?:ico|css|js|gif|jpeg|jpg|png)$ {
-      expires         max;
-      add_header      Pragma public;
-      add_header      Cache-Control "public, must-revalidate, proxy-revalidate";
-    }
+		# Deny hidden files (.htaccess, .htpasswd, .DS_Store).
+		location ~ /\. {
+			deny						all;
+			access_log			off;
+			log_not_found		off;
+		}
 
-    # Deny hidden files (.htaccess, .htpasswd, .DS_Store).
-    location ~ /\. {
-      deny            all;
-      access_log      off;
-      log_not_found   off;
-    }
+		# Deny /favicon.ico
+		location = /favicon.ico {
+			access_log			off;
+			log_not_found		off;
+		}
 
-    # Deny /favicon.ico
-    location = /favicon.ico {
-      access_log      off;
-      log_not_found   off;
-    }
+		# Deny /robots.txt
+		location = /robots.txt {
+			allow						all;
+			log_not_found		off;
+			access_log			off;
+		}
 
-    # Deny /robots.txt
-    location = /robots.txt {
-      allow           all;
-      log_not_found   off;
-      access_log      off;
-    }
+		# Trailburning Symfony Frontend
+		
+		location / {
+			
+			if (-d $request_filename) {
+				
+				rewrite ^([^.]*[^/])$ $1/ permanent;
+				rewrite (.*) $1index.html last;
+				
+				break;
+			}
+		
+			rewrite ^/app\.php/?(.*)$ /$1 permanent;
 
-    location / {
-      # wordpress fancy rewrites
-      if (-f $request_filename) {
-        break;
-      }
-      if (-d $request_filename) {
-        break;
-      }
+			try_files $uri @rewriteapp;
 
-      if ($request_uri ~ "/phpinfo.php$"){
-        break;
-      }
+		}
+		
+		location @rewriteapp {
+			rewrite ^(.*)$ /app.php/$1 last;
+		}
+		
+		
+		location ~ ^/(app|app_dev)\.php(/|$) {
+			fastcgi_split_path_info		^(.+\.php)(/.*)$;
+			include						fastcgi_params;
+			fastcgi_param 				SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_index				app.php;
+			send_timeout				1800;
+			fastcgi_read_timeout		1800;
+			fastcgi_pass				php_fpm;
+		}
+ 
+		# Statics
+		location /(bundles|media) {
+			access_log off;
+			expires 30d;
 
-      rewrite         ^/api/(.+)$ /api/index.php last;
-    }
+			# Font files
+			#if ($filename ~* ^.*?\.(eot)|(ttf)|(woff)$){
+			#       add_header Access-Control-Allow-Origin *;
+			#}
 
-    include /app/conf/nginx.d/*.conf;
+			try_files $uri @rewriteapp;
+		}
+		
+		# Trailburning API
+		
+		location /api/ {
+			root		/app;
+			
+			# wordpress fancy rewrites
+			if (-f $request_filename) {
+				break;
+			}
+			
+			if (-d $request_filename) {
+				break;
+			}
 
-    location ~ .*\.php$ {
-      try_files $uri =404;
-      limit_conn phplimit 3; # limit to 5 concurrent users to PHP per IP.
-      include         fastcgi_params;
-      fastcgi_param   HTTPS $my_https if_not_empty;
-      fastcgi_pass    php_fpm;
-      fastcgi_param   SCRIPT_FILENAME $document_root$fastcgi_script_name;
-    }
-  }
+			if ($request_uri ~ "/phpinfo.php$"){
+				break;
+			}
+			
+			rewrite         ^/api/(.+)$ /api/index.php last;
+			
+			location ~ .*\.php$ {
+				try_files 				$uri =404;
+				limit_conn phplimit		3; # limit to 5 concurrent users to PHP per IP.
+				include					fastcgi_params;
+				fastcgi_param			HTTPS $my_https if_not_empty;
+				fastcgi_pass			php_fpm;
+				fastcgi_param			SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			}
+		}
+
+		include /app/conf/nginx.d/*.conf;
+
+	}
 }

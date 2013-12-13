@@ -57,7 +57,6 @@ CACHE_DIR=$2
 BUNDLE_DIR="${CACHE_DIR}/bundles"
 LP_DIR=`cd $(dirname $0); cd ..; pwd`
 export COMPOSER_HOME="${CACHE_DIR}/.composer"
-export COMPOSER_VENDOR_DIR="api/vendor"
 
 # include .files when moving things around
 shopt -s dotglob
@@ -188,7 +187,6 @@ popd > /dev/null
 # Config files
 echo "-----> Copying config files"
 cp $LP_DIR/conf/php-fpm.conf ${BUILD_DIR}/vendor/php/etc/php-fpm.conf
-cp ${BUILD_DIR}/vendor/php/php/fpm/status.html ${BUILD_DIR}/status.html
 cp $LP_DIR/conf/php.ini ${BUILD_DIR}/vendor/php/php.ini
 cp -a $LP_DIR/conf/etc.d ${BUILD_DIR}/vendor/php/
 cp $LP_DIR/conf/nginx.conf.erb ${BUILD_DIR}/vendor/nginx/conf/nginx.conf.erb
