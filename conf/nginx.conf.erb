@@ -127,12 +127,12 @@ http {
 		
 			rewrite ^/app\.php/?(.*)$ /$1 permanent;
 
-			try_files $uri @rewriteapp;
+			try_files $uri @rewriteapp_api;
 
 		}
 		
-		location @rewriteapp {
-			rewrite ^/api(.*)$ /api/app.php/$1 last;
+		location @rewriteapp_api {
+			rewrite ^(.*)$ /app.php/$1 last;
 		}
         
 		location ~ ^/api/(app|app_dev)\.php(/|$) {
