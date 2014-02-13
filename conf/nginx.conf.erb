@@ -117,7 +117,8 @@ http {
 		# Trailburning API
         
 		location /api {
-			rewrite ^/api/app\.php/?(.*)$ /api/$1 permanent;
+			# rewrite ^/api/app\.php/?(.*)$ /api/$1 permanent;
+            rewrite         ^/api/(.+)$ /api/app.php last;
 		}
         
 		location ~ ^/api/(app|app_dev)\.php(/|$) {
