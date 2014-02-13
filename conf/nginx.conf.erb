@@ -114,34 +114,46 @@ http {
 		}
 		
 		# Trailburning API
-		
-		location /api/ {
-			root		/app;
-			
-			# wordpress fancy rewrites
-			if (-f $request_filename) {
-				break;
-			}
-			
-			if (-d $request_filename) {
-				break;
-			}
-
-			if ($request_uri ~ "/phpinfo.php$"){
-				break;
-			}
-			
-			rewrite         ^/api/(.+)$ /api/index.php last;
-			
-			location ~ .*\.php$ {
-				try_files 				$uri =404;
-				limit_conn phplimit		3; # limit to 5 concurrent users to PHP per IP.
-				include					fastcgi_params;
-				fastcgi_param			HTTPS $my_https if_not_empty;
-				fastcgi_pass			php_fpm;
-				fastcgi_param			SCRIPT_FILENAME $document_root$fastcgi_script_name;
-			}
+        
+		location ~ ^/api/(app|app_dev)\.php(/|$) {
+			root		                /app;
+            fastcgi_split_path_info		^(.+\.php)(/.*)$;
+			include						fastcgi_params;
+			fastcgi_param 				SCRIPT_FILENAME $document_root$fastcgi_script_name;
+			fastcgi_index				app.php;
+			send_timeout				1800;
+			fastcgi_read_timeout		1800;
+			fastcgi_pass				php_fpm;
 		}
+        
+		# Old Trailburning API
+		#location /api/ {
+        #    root        /app;
+        #    
+        #    # wordpress fancy rewrites
+        #    if (-f $request_filename) {
+        #        break;
+        #    }
+        #    
+        #    if (-d $request_filename) {
+        #        break;
+        #    }
+        #
+        #    if ($request_uri ~ "/phpinfo.php$"){
+        #        break;
+        #    }
+        #    
+        #    rewrite         ^/api/(.+)$ /api/index.php last;
+        #    
+        #    location ~ .*\.php$ {
+        #        try_files                 $uri =404;
+        #        limit_conn phplimit        3; # limit to 5 concurrent users to PHP per IP.
+        #        include                    fastcgi_params;
+        #        fastcgi_param            HTTPS $my_https if_not_empty;
+        #        fastcgi_pass            php_fpm;
+        #        fastcgi_param            SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        #    }
+        #}
 
 		include /app/conf/nginx.d/*.conf;
 
