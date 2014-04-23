@@ -260,8 +260,3 @@ EOF
 chmod +x boot.sh
 
 echo "-----> Done with compile"
-
-echo "-----> Run /app/tools/cron_10m.sh"
-
-# initially run the cron script
-/app/tools/cron_10m.sh
