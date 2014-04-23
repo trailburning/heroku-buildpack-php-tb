@@ -20,7 +20,7 @@ MANIFEST_FILE="manifest.md5sum"
 NGINX_FILE="nginx-${NGINX_VERSION}-heroku.tar.gz"
 MCRYPT_FILE="libmcrypt-${LIBMCRYPT_VERSION}.tar.gz"
 MEMCACHED_FILE="libmemcached-${LIBMEMCACHED_VERSION}.tar.gz"
-PHP_FILE="php-${PHP_VERSION}-with-fpm-heroku-new.tar.gz"
+PHP_FILE="php-${PHP_VERSION}-with-fpm-heroku.tar.gz"
 
 MANIFEST_URL="${S3_URL}/${MANIFEST_FILE}"
 NGINX_URL="${S3_URL}/${NGINX_FILE}"
