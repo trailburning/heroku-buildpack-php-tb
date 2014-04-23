@@ -23,7 +23,7 @@ mkdir -p /app/local
 curl -L "https://${S3_ENDPOINT}/${S3_BUCKET}/libmemcached-${LIBMEMCACHED_VERSION}.tar.gz" -o - | tar xz -C /app/local
 echo "+ Fetching PHP sources..."
 #fetch php, extract
-curl -L http://us.php.net/get/php-$PHP_VERSION.tar.bz2/from/www.php.net/mirror -o - | tar xj
+curl -L http://museum.php.net/php5/php-$PHP_VERSION.tar.bz2 -o - | tar xj
 
 mkdir -p /app/vendor/php
 
@@ -62,7 +62,8 @@ echo "+ Configuring PHP..."
 --with-pgsql \
 --with-pdo-pgsql \
 --with-png-dir \
---with-zlib
+--with-zlib \
+--enable-bcmath
 
 echo "+ Compiling PHP..."
 # build & install it
@@ -79,6 +80,7 @@ pear config-set php_dir /app/vendor/php
 echo "+ Installing APC..."
 # install apc from source
 curl -L http://pecl.php.net/get/APC-${APC_VERSION}.tgz -o - | tar xz
+
 pushd APC-${APC_VERSION}
 # php apc jokers didn't update the version string in 3.1.10.
 sed -i 's/PHP_APC_VERSION "3.1.9"/PHP_APC_VERSION "3.1.10"/g' php_apc.h
