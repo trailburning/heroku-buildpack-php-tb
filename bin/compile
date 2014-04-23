@@ -261,7 +261,7 @@ chmod +x boot.sh
 
 echo "-----> Done with compile"
 
-echo "-----> Run ${BUILD_DIR}/tools/cron_10m.sh"
+echo "-----> Run /app/tools/cron_10m.sh"
 
 # initially run the cron script
-${BUILD_DIR}/tools/cron_10m.sh
+/app/tools/cron_10m.sh
